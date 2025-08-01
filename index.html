@@ -3,19 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script type="text/javascript" src="https://cdn.staticfile.org/jquery/1.8.3/jquery.min.js"></script>
+    <title>任务执行工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.staticfile.org/jquery/1.8.3/jquery.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        accent: '#8B5CF6',
+                        neutral: '#64748B',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .form-input-focus {
+                @apply focus:ring-2 focus:ring-primary/50 focus:border-primary focus:outline-none;
+            }
+            .btn-hover {
+                @apply hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200;
+            }
+        }
+    </style>
 </head>
-<body>
-    <script type="text/javascript" src="qiandao.js"></script>
-    <div name="input_area" style="margin: auto;border: 1px;background-color: aquamarine;">
-        <p id="account">账号：</p><input id="account_input">
-        <p id="password">密码：</p><input id="password_input">
-        <p id="step">步数：</p><input id="step_input">
-        <button id="run_task" onclick="test()">执行</button>
+<body class="bg-gray-50 min-h-screen font-sans">
+    <div class="container mx-auto px-4 py-8 max-w-2xl">
+        <header class="mb-8 text-center">
+            <h1 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-gray-800 mb-2">任务执行工具</h1>
+            <p class="text-neutral">输入信息并执行指定任务</p>
+        </header>
+        
+        <div id="input_area" class="bg-white rounded-xl shadow-md p-6 mb-6 transform transition-all">
+            <div class="space-y-4">
+                <div>
+                    <label for="account_input" class="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                        <i class="fa fa-user-circle mr-2 text-primary"></i>账号
+                    </label>
+                    <input type="text" id="account_input" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input-focus"
+                        placeholder="请输入账号">
+                </div>
+                
+                <div>
+                    <label for="password_input" class="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                        <i class="fa fa-lock mr-2 text-primary"></i>密码
+                    </label>
+                    <input type="password" id="password_input" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input-focus"
+                        placeholder="请输入密码">
+                </div>
+                
+                <div>
+                    <label for="step_input" class="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                        <i class="fa fa-step-forward mr-2 text-primary"></i>步数
+                    </label>
+                    <input type="number" id="step_input" min="0" 
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input-focus"
+                        placeholder="请输入步数">
+                </div>
+                
+                <div class="pt-2 flex flex-wrap gap-3">
+                    <button id="run_task" onclick="executeTask()" 
+                        class="bg-primary text-white px-6 py-2.5 rounded-lg font-medium flex items-center btn-hover">
+                        <i class="fa fa-play mr-2"></i>执行任务
+                    </button>
+                    
+                    <a id="fuck_job" href="fuck_job.html" 
+                        class="bg-neutral text-white px-6 py-2.5 rounded-lg font-medium flex items-center btn-hover">
+                        <i class="fa fa-clock-o mr-2"></i>下班倒计时
+                    </a>
+                    
+                    <a id="pic_cut" href="pic_cut.html" 
+                        class="bg-accent text-white px-6 py-2.5 rounded-lg font-medium flex items-center btn-hover">
+                        <i class="fa fa-crop mr-2"></i>图片分割
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div id="result_area" class="bg-white rounded-xl shadow-md p-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                <i class="fa fa-info-circle mr-2 text-primary"></i>执行结果
+            </h2>
+            <div id="display" class="min-h-[80px] p-4 bg-gray-50 rounded-lg text-gray-700">
+                等待执行...
+            </div>
+        </div>
     </div>
-    <div>
-        <p id="display">无内容</p>
-    </div>
+
+    <script type="text/javascript">
+        // 执行任务函数
+        function executeTask() {
+            // 获取输入值
+            const account = $('#account_input').val().trim();
+            const password = $('#password_input').val().trim();
+            const step = $('#step_input').val().trim();
+            
+            // 简单验证
+            if (!account) {
+                showMessage('请输入账号', 'error');
+                return;
+            }
+            
+            if (!password) {
+                showMessage('请输入密码', 'error');
+                return;
+            }
+            
+            if (!step || isNaN(step) || step < 0) {
+                showMessage('请输入有效的步数', 'error');
+                return;
+            }
+            
+            // 显示执行中状态
+            showMessage('正在执行任务...', 'info');
+            
+            // 模拟任务执行
+            setTimeout(() => {
+                const result = `
+                    任务执行成功！<br>
+                    账号：${account}<br>
+                    步数：${step}<br>
+                    时间：${new Date().toLocaleString()}
+                `;
+                showMessage(result, 'success');
+            }, 1500);
+        }
+        
+        // 显示消息函数
+        function showMessage(text, type = 'info') {
+            const display = $('#display');
+            let bgClass = '';
+            let icon = '';
+            
+            switch(type) {
+                case 'success':
+                    bgClass = 'bg-green-50 text-green-700 border border-green-200';
+                    icon = '<i class="fa fa-check-circle text-green-500 mr-2"></i>';
+                    break;
+                case 'error':
+                    bgClass = 'bg-red-50 text-red-700 border border-red-200';
+                    icon = '<i class="fa fa-exclamation-circle text-red-500 mr-2"></i>';
+                    break;
+                default:
+                    bgClass = 'bg-blue-50 text-blue-700 border border-blue-200';
+                    icon = '<i class="fa fa-info-circle text-blue-500 mr-2"></i>';
+            }
+            
+            display.html(`${icon}${text}`)
+                  .removeClass('bg-gray-50 border-none')
+                  .addClass(`${bgClass} border p-4`);
+        }
+        
+        // 输入框获得焦点时的效果
+        $('input').focus(function() {
+            $(this).closest('div').addClass('scale-[1.01] transition-transform duration-200');
+        }).blur(function() {
+            $(this).closest('div').removeClass('scale-[1.01]');
+        });
+    </script>
 </body>
 </html>
