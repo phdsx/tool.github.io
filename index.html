@@ -1,190 +1,773 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>任务执行工具</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <script src="https://cdn.staticfile.org/jquery/1.8.3/jquery.min.js"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#3B82F6',
-                        secondary: '#10B981',
-                        accent: '#8B5CF6',
-                        neutral: '#64748B',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                    },
-                }
-            }
-        }
-    </script>
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .content-auto {
-                content-visibility: auto;
-            }
-            .form-input-focus {
-                @apply focus:ring-2 focus:ring-primary/50 focus:border-primary focus:outline-none;
-            }
-            .btn-hover {
-                @apply hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>工具小站</title>
+  <!-- 引入Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "sphx0kqwdu");
+  </script>
+  
+  <!-- Tailwind配置 -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3B82F6',
+            secondary: '#10B981',
+            dark: '#1E293B',
+            light: '#F8FAFC',
+            muted: '#94A3B8'
+          },
+          fontFamily: {
+            inter: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <!-- 自定义工具类 -->
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+      .text-shadow {
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .transition-transform-opacity {
+        transition-property: transform, opacity;
+      }
+    }
+  </style>
 </head>
-<body class="bg-gray-50 min-h-screen font-sans">
-    <div class="container mx-auto px-4 py-8 max-w-2xl">
-        <header class="mb-8 text-center">
-            <h1 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-gray-800 mb-2">任务执行工具</h1>
-            <p class="text-neutral">输入信息并执行指定任务</p>
-        </header>
-        
-        <div id="input_area" class="bg-white rounded-xl shadow-md p-6 mb-6 transform transition-all">
-            <div class="space-y-4">
-                <div>
-                    <label for="account_input" class="block text-sm font-medium text-gray-700 mb-1 flex items-center">
-                        <i class="fa fa-user-circle mr-2 text-primary"></i>账号
-                    </label>
-                    <input type="text" id="account_input" 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input-focus"
-                        placeholder="请输入账号">
-                </div>
-                
-                <div>
-                    <label for="password_input" class="block text-sm font-medium text-gray-700 mb-1 flex items-center">
-                        <i class="fa fa-lock mr-2 text-primary"></i>密码
-                    </label>
-                    <input type="password" id="password_input" 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input-focus"
-                        placeholder="请输入密码">
-                </div>
-                
-                <div>
-                    <label for="step_input" class="block text-sm font-medium text-gray-700 mb-1 flex items-center">
-                        <i class="fa fa-step-forward mr-2 text-primary"></i>步数
-                    </label>
-                    <input type="number" id="step_input" min="0" 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input-focus"
-                        placeholder="请输入步数">
-                </div>
-                
-                <div class="pt-2 flex flex-wrap gap-3">
-                    <button id="run_task" onclick="executeTask()" 
-                        class="bg-primary text-white px-6 py-2.5 rounded-lg font-medium flex items-center btn-hover">
-                        <i class="fa fa-play mr-2"></i>执行任务
-                    </button>
-                    
-                    <a id="fuck_job" href="fuck_job.html" 
-                        class="bg-neutral text-white px-6 py-2.5 rounded-lg font-medium flex items-center btn-hover">
-                        <i class="fa fa-clock-o mr-2"></i>下班倒计时
-                    </a>
-                    
-                    <a id="pic_cut" href="pic_cut.html" 
-                        class="bg-accent text-white px-6 py-2.5 rounded-lg font-medium flex items-center btn-hover">
-                        <i class="fa fa-crop mr-2"></i>图片分割
-                    </a>
-                    <a id="pic_cut" href="pic_scale_change.html" 
-                        class="bg-accent text-white px-6 py-2.5 rounded-lg font-medium flex items-center btn-hover">
-                        <i class="fa fa-crop mr-2"></i>图片比例调整
-                    </a>
-                    <a id="pic_cut" href="pic_compress.html" 
-                        class="bg-accent text-white px-6 py-2.5 rounded-lg font-medium flex items-center btn-hover">
-                        <i class="fa fa-crop mr-2"></i>照片压缩工具
-                    </a>
-                    <a id="pic_cut" href="pic_compress.html" 
-                        class="bg-accent text-white px-6 py-2.5 rounded-lg font-medium flex items-center btn-hover">
-                        <i class="fa fa-crop mr-2"></i>中国象棋
-                    </a>
-                </div>
+<body class="font-inter bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+  <!-- 顶部搜索区 -->
+  <div class="bg-white border-b border-gray-200 py-4 shadow-sm">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto">
+        <div class="flex flex-col md:flex-row gap-3">
+          <!-- 搜索类型选择器 -->
+          <div class="relative md:w-40">
+            <select id="search-type" class="w-full bg-gray-50 border border-gray-200 text-gray-700 py-2 pl-3 pr-10 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
+              <option value="internet">互联网搜索</option>
+              <option value="tools">本页工具</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+              <i class="fa fa-chevron-down text-xs"></i>
             </div>
-        </div>
-        
-        <div id="result_area" class="bg-white rounded-xl shadow-md p-6">
-            <h2 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
-                <i class="fa fa-info-circle mr-2 text-primary"></i>执行结果
-            </h2>
-            <div id="display" class="min-h-[80px] p-4 bg-gray-50 rounded-lg text-gray-700">
-                等待执行...
+          </div>
+          
+          <!-- 搜索引擎选择器 (仅在互联网搜索时显示) -->
+          <div id="engine-selector" class="relative md:w-40">
+            <select id="search-engine" class="w-full bg-gray-50 border border-gray-200 text-gray-700 py-2 pl-3 pr-10 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all">
+              <option value="https://www.baidu.com/s?wd=">百度</option>
+              <option value="https://www.google.com/search?q=">谷歌</option>
+              <option value="https://cn.bing.com/search?q=">必应</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+              <i class="fa fa-chevron-down text-xs"></i>
             </div>
+          </div>
+          
+          <!-- 搜索框和按钮 -->
+          <div class="flex-1 flex gap-2">
+            <div class="relative flex-1">
+              <input 
+                type="text" 
+                id="search-input" 
+                placeholder="输入搜索内容..." 
+                class="w-full bg-gray-50 border border-gray-200 text-gray-700 py-2 pl-10 pr-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+              >
+              <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-500">
+                <i class="fa fa-search"></i>
+              </div>
+            </div>
+            <button id="search-button" class="bg-primary hover:bg-primary/90 text-white py-2 px-6 rounded-lg transition-colors flex items-center">
+              <i class="fa fa-search mr-1"></i>
+              <span>搜索</span>
+            </button>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 
-    <script type="text/javascript">
-        // 执行任务函数
-        function executeTask() {
-            // 获取输入值
-            const account = $('#account_input').val().trim();
-            const password = $('#password_input').val().trim();
-            const step = $('#step_input').val().trim();
-            
-            // 简单验证
-            if (!account) {
-                showMessage('请输入账号', 'error');
-                return;
-            }
-            
-            if (!password) {
-                showMessage('请输入密码', 'error');
-                return;
-            }
-            
-            if (!step || isNaN(step) || step < 0) {
-                showMessage('请输入有效的步数', 'error');
-                return;
-            }
-            
-            // 显示执行中状态
-            showMessage('正在执行任务...', 'info');
-            
-            // 模拟任务执行
-            setTimeout(() => {
-                const result = `
-                    任务执行成功！<br>
-                    账号：${account}<br>
-                    步数：${step}<br>
-                    时间：${new Date().toLocaleString()}
-                `;
-                showMessage(result, 'success');
-            }, 1500);
-        }
+  <!-- 顶部导航栏 - 始终保持显示 -->
+  <header class="bg-white shadow-sm sticky top-20 md:top-0 z-50 transition-all duration-300">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <i class="fa fa-wrench text-primary text-2xl"></i>
+        <h1 class="text-xl font-bold text-gray-800">工具分类导航</h1>
+      </div>
+      
+      <div class="flex items-center space-x-4">
+        <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100 transition-colors">
+          <i class="fa fa-moon-o text-gray-600"></i>
+        </button>
+        <button id="mobile-menu-button" class="md:hidden p-2 rounded-full hover:bg-gray-100 transition-colors">
+          <i class="fa fa-bars text-gray-600"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主内容区 - 添加底部边距以避免被固定页脚遮挡 -->
+  <main class="flex-1 flex flex-col md:flex-row pb-24 md:pb-20">
+    <!-- 左侧导航 - 在滚动时保持显示 -->
+    <aside id="sidebar" class="bg-white shadow-sm w-full md:w-64 md:h-[calc(100vh-130px)] md:sticky md:top-[102px] overflow-y-auto scrollbar-hide transform md:translate-x-0 -translate-x-full fixed md:static inset-y-0 left-0 z-40 transition-transform duration-300 ease-in-out">
+      <nav class="p-4">
+        <ul class="space-y-1">
+          <li class="nav-item">
+            <a href="#fun-tools" class="block py-2 px-3 rounded-md hover:bg-gray-100 transition-colors flex items-center">
+              <i class="fa fa-face-smile w-6 text-primary"></i>
+              <span>抽象工具</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#text-tools" class="block py-2 px-3 rounded-md hover:bg-gray-100 transition-colors flex items-center">
+              <i class="fa fa-font w-6 text-primary"></i>
+              <span>文本工具</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#image-tools" class="block py-2 px-3 rounded-md hover:bg-gray-100 transition-colors flex items-center">
+              <i class="fa fa-image w-6 text-primary"></i>
+              <span>图片工具</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#conversion-tools" class="block py-2 px-3 rounded-md hover:bg-gray-100 transition-colors flex items-center">
+              <i class="fa fa-exchange w-6 text-primary"></i>
+              <span>格式转换</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#development-tools" class="block py-2 px-3 rounded-md hover:bg-gray-100 transition-colors flex items-center">
+              <i class="fa fa-code w-6 text-primary"></i>
+              <span>开发工具</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#calculation-tools" class="block py-2 px-3 rounded-md hover:bg-gray-100 transition-colors flex items-center">
+              <i class="fa fa-calculator w-6 text-primary"></i>
+              <span>计算工具</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#network-tools" class="block py-2 px-3 rounded-md hover:bg-gray-100 transition-colors flex items-center">
+              <i class="fa fa-wifi w-6 text-primary"></i>
+              <span>网络工具</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#life-tools" class="block py-2 px-3 rounded-md hover:bg-gray-100 transition-colors flex items-center">
+              <i class="fa fa-home w-6 text-primary"></i>
+              <span>生活工具</span>
+            </a>
+          </li>
+          
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- 右侧内容区 -->
+    <div class="flex-1 p-4 md:p-6 overflow-hidden">
+      <div id="content" class="max-w-4xl mx-auto space-y-8">
+        <!-- 抽象工具 -->
+        <section id="fun-tools" class="scroll-mt-20">
+          <div class="bg-white rounded-xl shadow-sm p-6 transition-all duration-300 hover:shadow-md">
+            <h2 class="text-2xl font-bold mb-4 flex items-center">
+              <i class="fa fa-face-smile mr-3 text-primary"></i>
+              抽象工具
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <a href="./ChouXiangTool/吃啥饭.html" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="吃啥饭 吃饭 选择">
+                <i class="fa fa-cutlery text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">吃啥饭</h3>
+                  <p class="text-sm text-gray-500 mt-1">吃饭不决问天意等</p>
+                </div>
+              </a>
+              <a href="./ChouXiangTool/父母性别计算器.html" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="父母性别计算器">
+                <i class="fa fa-mars-and-venus text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">父母性别计算器</h3>
+                  <p class="text-sm text-gray-500 mt-1">计算父母性别</p>
+                </div>
+              </a>
+              <a href="./ChouXiangTool/雷劈计算器.html" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="雷劈概率计算器">
+                <i class="fa fa-bolt text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">雷劈概率计算器</h3>
+                  <p class="text-sm text-gray-500 mt-1">计算挨雷劈概率</p>
+                </div>
+              </a>
+              <a href="./ChouXiangTool/下班倒计时.html" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="翻译工具 多国语言 文本翻译">
+                <i class="fa fa-stopwatch-20 text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">下班倒计时</h3>
+                  <p class="text-sm text-gray-500 mt-1">下班不积极，思想有问题</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </section>
+        <!-- 文本工具 -->
+        <section id="text-tools" class="scroll-mt-20">
+          <div class="bg-white rounded-xl shadow-sm p-6 transition-all duration-300 hover:shadow-md">
+            <h2 class="text-2xl font-bold mb-4 flex items-center">
+              <i class="fa fa-font mr-3 text-primary"></i>
+              文本工具
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <a href="./TextTool/TextDropDup.html" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="文本去重 重复 唯一">
+                <i class="fa fa-copy text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">文本去重</h3>
+                  <p class="text-sm text-gray-500 mt-1">去除文本中的重复内容，保留唯一信息</p>
+                </div>
+              </a>
+              <a href="./TextTool/case-converter.html" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="大小写转换 大写 小写 首字母">
+                <i class="fa fa-exchange text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">大小写转换</h3>
+                  <p class="text-sm text-gray-500 mt-1">将文本在大写、小写、首字母大写之间转换</p>
+                </div>
+              </a>
+              <a href="./TextTool/WordCount.html" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="字数统计 字符数 段落数">
+                <i class="fa fa-font text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">字数统计</h3>
+                  <p class="text-sm text-gray-500 mt-1">统计文本的字数、字符数、段落数等信息</p>
+                </div>
+              </a>
+              <a href="./TextTool/WordPretty.html" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="文本格式化 美化 易读">
+                <i class="fa fa-indent text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">文本格式化</h3>
+                  <p class="text-sm text-gray-500 mt-1">美化文本格式，使其更易读</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <!-- 图片工具 -->
+        <section id="image-tools" class="scroll-mt-20">
+          <div class="bg-white rounded-xl shadow-sm p-6 transition-all duration-300 hover:shadow-md">
+            <h2 class="text-2xl font-bold mb-4 flex items-center">
+              <i class="fa fa-picture-o mr-3 text-primary"></i>
+              图片工具
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <a href="#" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="图片压缩 减小 画质">
+                <i class="fa fa-compress text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">图片压缩</h3>
+                  <p class="text-sm text-gray-500 mt-1">减小图片文件大小，保持较好画质</p>
+                </div>
+              </a>
+              <a href="#" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="图片裁剪 尺寸 比例">
+                <i class="fa fa-crop text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">图片裁剪</h3>
+                  <p class="text-sm text-gray-500 mt-1">裁剪图片尺寸，调整图片比例</p>
+                </div>
+              </a>
+              <a href="#" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="图片加水印 文字 版权">
+                <i class="fa fa-adjust text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">图片加水印</h3>
+                  <p class="text-sm text-gray-500 mt-1">为图片添加文字或图片水印，保护版权</p>
+                </div>
+              </a>
+              <a href="#" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="图片滤镜 效果 美化">
+                <i class="fa fa-paint-brush text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">图片滤镜</h3>
+                  <p class="text-sm text-gray-500 mt-1">为图片应用各种滤镜效果，美化图片</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <!-- 格式转换 -->
+        <section id="conversion-tools" class="scroll-mt-20">
+          <div class="bg-white rounded-xl shadow-sm p-6 transition-all duration-300 hover:shadow-md">
+            <h2 class="text-2xl font-bold mb-4 flex items-center">
+              <i class="fa fa-exchange mr-3 text-primary"></i>
+              格式转换
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <a href="#" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="PDF转换 Word Excel 图片">
+                <i class="fa fa-file-pdf-o text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">PDF转换</h3>
+                  <p class="text-sm text-gray-500 mt-1">PDF与Word、Excel、图片等格式互转</p>
+                </div>
+              </a>
+              <a href="#" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="图片格式转换 JPG PNG GIF WebP">
+                <i class="fa fa-file-image-o text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">图片格式转换</h3>
+                  <p class="text-sm text-gray-500 mt-1">JPG、PNG、GIF、WebP等格式互转</p>
+                </div>
+              </a>
+              <a href="#" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="音频格式转换 MP3 WAV FLAC">
+                <i class="fa fa-file-audio-o text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">音频格式转换</h3>
+                  <p class="text-sm text-gray-500 mt-1">MP3、WAV、FLAC等音频格式互转</p>
+                </div>
+              </a>
+              <a href="#" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="视频格式转换 MP4 AVI MOV">
+                <i class="fa fa-file-video-o text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">视频格式转换</h3>
+                  <p class="text-sm text-gray-500 mt-1">MP4、AVI、MOV等视频格式互转</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <!-- 开发工具 -->
+        <section id="development-tools" class="scroll-mt-20">
+          <div class="bg-white rounded-xl shadow-sm p-6 transition-all duration-300 hover:shadow-md">
+            <h2 class="text-2xl font-bold mb-4 flex items-center">
+              <i class="fa fa-code mr-3 text-primary"></i>
+              开发工具
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <a href="#" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="HTML格式化 美化 可读性">
+                <i class="fa fa-html5 text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">HTML格式化</h3>
+                  <p class="text-sm text-gray-500 mt-1">美化HTML代码，提高可读性</p>
+                </div>
+              </a>
+              <a href="#" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="CSS压缩 减小体积">
+                <i class="fa fa-css3 text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">CSS压缩</h3>
+                  <p class="text-sm text-gray-500 mt-1">压缩CSS代码，减小文件体积</p>
+                </div>
+              </a>
+              <a href="#" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="JSON解析 格式化">
+                <i class="fa fa-code text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">JSON解析</h3>
+                  <p class="text-sm text-gray-500 mt-1">格式化和解析JSON数据</p>
+                </div>
+              </a>
+              <a href="#" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="MD5加密 文本处理">
+                <i class="fa fa-key text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">MD5加密</h3>
+                  <p class="text-sm text-gray-500 mt-1">对文本进行MD5加密处理</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <!-- 计算工具 -->
+        <section id="calculation-tools" class="scroll-mt-20">
+          <div class="bg-white rounded-xl shadow-sm p-6 transition-all duration-300 hover:shadow-md">
+            <h2 class="text-2xl font-bold mb-4 flex items-center">
+              <i class="fa fa-calculator mr-3 text-primary"></i>
+              计算工具
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <a href="#" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="百分比计算器 增长率">
+                <i class="fa fa-percent text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">百分比计算器</h3>
+                  <p class="text-sm text-gray-500 mt-1">快速计算百分比、增长率等</p>
+                </div>
+              </a>
+              <a href="#" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="贷款计算器 月供 利息">
+                <i class="fa fa-money text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">贷款计算器</h3>
+                  <p class="text-sm text-gray-500 mt-1">计算贷款月供、总利息等</p>
+                </div>
+              </a>
+              <a href="#" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="时间计算器 时间差 日期加减">
+                <i class="fa fa-clock-o text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">时间计算器</h3>
+                  <p class="text-sm text-gray-500 mt-1">计算时间差、日期加减等</p>
+                </div>
+              </a>
+              <a href="#" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="单位转换 长度 重量 面积">
+                <i class="fa fa-balance-scale text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">单位转换</h3>
+                  <p class="text-sm text-gray-500 mt-1">长度、重量、面积等单位转换</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <!-- 网络工具 -->
+        <section id="network-tools" class="scroll-mt-20">
+          <div class="bg-white rounded-xl shadow-sm p-6 transition-all duration-300 hover:shadow-md">
+            <h2 class="text-2xl font-bold mb-4 flex items-center">
+              <i class="fa fa-wifi mr-3 text-primary"></i>
+              网络工具
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <a href="#" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="IP查询 归属地 运营商">
+                <i class="fa fa-globe text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">IP查询</h3>
+                  <p class="text-sm text-gray-500 mt-1">查询IP地址归属地、运营商等信息</p>
+                </div>
+              </a>
+              <a href="#" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="URL编码解码">
+                <i class="fa fa-link text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">URL编码解码</h3>
+                  <p class="text-sm text-gray-500 mt-1">对URL进行编码或解码处理</p>
+                </div>
+              </a>
+              <a href="#" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="ping测试 网络速度 稳定性">
+                <i class="fa fa-ping text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">ping测试</h3>
+                  <p class="text-sm text-gray-500 mt-1">测试网络连接速度和稳定性</p>
+                </div>
+              </a>
+              <a href="#" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="密码生成器 高强度 随机">
+                <i class="fa fa-shield text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">密码生成器</h3>
+                  <p class="text-sm text-gray-500 mt-1">生成高强度随机密码</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <!-- 生活工具 -->
+        <section id="life-tools" class="scroll-mt-20">
+          <div class="bg-white rounded-xl shadow-sm p-6 transition-all duration-300 hover:shadow-md">
+            <h2 class="text-2xl font-bold mb-4 flex items-center">
+              <i class="fa fa-home mr-3 text-primary"></i>
+              生活工具
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <a href="#" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="日历工具 节假日 万年历">
+                <i class="fa fa-calendar text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">日历工具</h3>
+                  <p class="text-sm text-gray-500 mt-1">查看日历、节假日、万年历等</p>
+                </div>
+              </a>
+              <a href="#" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="天气预报 天气情况">
+                <i class="fa fa-weather-o text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">天气预报</h3>
+                  <p class="text-sm text-gray-500 mt-1">查询各地天气情况和预报</p>
+                </div>
+              </a>
+              <a href="#" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="食谱大全 美食 烹饪">
+                <i class="fa fa-cutlery text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">食谱大全</h3>
+                  <p class="text-sm text-gray-500 mt-1">各种美食的做法和烹饪技巧</p>
+                </div>
+              </a>
+              <a href="#" class="p-4 border border-gray-100 rounded-lg hover:border-primary hover:bg-blue-50 transition-all duration-300 flex items-start group tool-item" data-keywords="翻译工具 多国语言 文本翻译">
+                <i class="fa fa-language text-primary mt-1 mr-3 group-hover:scale-110 transition-transform"></i>
+                <div>
+                  <h3 class="font-medium">翻译工具</h3>
+                  <p class="text-sm text-gray-500 mt-1">多国语言互译，支持文本翻译</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </section>
         
-        // 显示消息函数
-        function showMessage(text, type = 'info') {
-            const display = $('#display');
-            let bgClass = '';
-            let icon = '';
-            
-            switch(type) {
-                case 'success':
-                    bgClass = 'bg-green-50 text-green-700 border border-green-200';
-                    icon = '<i class="fa fa-check-circle text-green-500 mr-2"></i>';
-                    break;
-                case 'error':
-                    bgClass = 'bg-red-50 text-red-700 border border-red-200';
-                    icon = '<i class="fa fa-exclamation-circle text-red-500 mr-2"></i>';
-                    break;
-                default:
-                    bgClass = 'bg-blue-50 text-blue-700 border border-blue-200';
-                    icon = '<i class="fa fa-info-circle text-blue-500 mr-2"></i>';
-            }
-            
-            display.html(`${icon}${text}`)
-                  .removeClass('bg-gray-50 border-none')
-                  .addClass(`${bgClass} border p-4`);
+      </div>
+    </div>
+  </main>
+
+  <!-- 页脚 - 在滚动过程中保持显示在底部 -->
+  <footer class="bg-white border-t border-gray-200 py-4 fixed bottom-0 left-0 right-0 z-40 transition-all duration-300">
+    <div class="container mx-auto px-4 text-center">
+      <p class="text-gray-500 text-sm">© 2025 实用工具导航 | 部分工具为第三方服务</p>
+      <div class="flex justify-center space-x-4 mt-2">
+        <a href="#" class="text-gray-400 hover:text-primary transition-colors duration-300">
+          <i class="fa fa-github"></i>
+        </a>
+        <a href="#" class="text-gray-400 hover:text-primary transition-colors duration-300">
+          <i class="fa fa-twitter"></i>
+        </a>
+        <a href="#" class="text-gray-400 hover:text-primary transition-colors duration-300">
+          <i class="fa fa-envelope"></i>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    // 处理侧边栏导航与内容区滚动联动
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.nav-item a');
+      const sections = document.querySelectorAll('section');
+      const sidebar = document.getElementById('sidebar');
+      const mobileMenuButton = document.getElementById('mobile-menu-button');
+      const themeToggle = document.getElementById('theme-toggle');
+      const header = document.querySelector('header');
+      const footer = document.querySelector('footer');
+      const searchButton = document.getElementById('search-button');
+      const searchInput = document.getElementById('search-input');
+      const searchType = document.getElementById('search-type');
+      const searchEngine = document.getElementById('search-engine');
+      const engineSelector = document.getElementById('engine-selector');
+      const toolItems = document.querySelectorAll('.tool-item');
+      let isDarkMode = false;
+      let lastScrollTop = 0;
+
+      // 搜索类型切换
+      searchType.addEventListener('change', function() {
+        if (this.value === 'internet') {
+          engineSelector.style.display = 'block';
+        } else {
+          engineSelector.style.display = 'none';
         }
+      });
+
+      // 执行搜索
+      function performSearch() {
+        const query = searchInput.value.trim();
+        if (!query) return;
+
+        if (searchType.value === 'internet') {
+          // 互联网搜索
+          const engineUrl = searchEngine.value;
+          window.open(engineUrl + encodeURIComponent(query), '_blank');
+        } else {
+          // 本页工具搜索
+          searchTools(query);
+        }
+      }
+
+      // 本页工具搜索功能
+      function searchTools(query) {
+        const searchTerm = query.toLowerCase();
+        let found = false;
         
-        // 输入框获得焦点时的效果
-        $('input').focus(function() {
-            $(this).closest('div').addClass('scale-[1.01] transition-transform duration-200');
-        }).blur(function() {
-            $(this).closest('div').removeClass('scale-[1.01]');
+        // 重置所有工具项样式
+        toolItems.forEach(item => {
+          item.classList.remove('bg-yellow-50', 'border-yellow-200');
+          item.closest('section').style.display = 'block';
         });
-    </script>
+
+        // 高亮匹配的工具项
+        toolItems.forEach(item => {
+          const keywords = item.dataset.keywords.toLowerCase();
+          const title = item.querySelector('h3').textContent.toLowerCase();
+          const description = item.querySelector('p').textContent.toLowerCase();
+          
+          if (keywords.includes(searchTerm) || title.includes(searchTerm) || description.includes(searchTerm)) {
+            item.classList.add('bg-yellow-50', 'border-yellow-200');
+            found = true;
+            
+            // 滚动到找到的第一个结果
+            if (found) {
+              item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              found = false; // 只滚动到第一个匹配项
+            }
+          } else {
+            // 可以选择隐藏不匹配的项
+            // item.style.display = 'none';
+          }
+        });
+      }
+
+      // 搜索按钮点击事件
+      searchButton.addEventListener('click', performSearch);
+
+      // 搜索框回车事件
+      searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          performSearch();
+        }
+      });
+
+      // 处理滚动时导航栏的显示效果
+      window.addEventListener('scroll', function() {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        // 滚动时添加阴影效果，增强层次感
+        if (scrollTop > 10) {
+          header.classList.add('shadow');
+          header.classList.remove('shadow-sm');
+          footer.classList.add('shadow-md');
+        } else {
+          header.classList.remove('shadow');
+          header.classList.add('shadow-sm');
+          footer.classList.remove('shadow-md');
+        }
+        
+        lastScrollTop = scrollTop;
+      });
+
+      // 移动端菜单切换
+      mobileMenuButton.addEventListener('click', function() {
+        sidebar.classList.toggle('-translate-x-full');
+      });
+
+      // 点击导航链接滚动到对应区域
+      navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          // 移动端点击后关闭菜单
+          if (window.innerWidth < 768) {
+            sidebar.classList.add('-translate-x-full');
+          }
+          
+          const targetId = this.getAttribute('href');
+          const targetElement = document.querySelector(targetId);
+          
+          if (targetElement) {
+            window.scrollTo({
+              top: targetElement.offsetTop - 120, // 调整偏移量以适应搜索栏
+              behavior: 'smooth'
+            });
+            
+            // 更新活跃状态
+            updateActiveNav(targetId);
+          }
+        });
+      });
+
+      // 滚动时更新导航活跃状态
+      window.addEventListener('scroll', function() {
+        let current = '';
+        
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.clientHeight;
+          
+          if (window.pageYOffset >= (sectionTop - 150)) { // 调整偏移量以适应搜索栏
+            current = '#' + section.getAttribute('id');
+          }
+        });
+        
+        updateActiveNav(current);
+      });
+
+      // 更新导航活跃状态的函数
+      function updateActiveNav(currentId) {
+        navLinks.forEach(link => {
+          link.classList.remove('bg-primary/10', 'text-primary', 'font-medium');
+          if (link.getAttribute('href') === currentId) {
+            link.classList.add('bg-primary/10', 'text-primary', 'font-medium');
+          }
+        });
+      }
+
+      // 暗黑模式切换
+      themeToggle.addEventListener('click', function() {
+        isDarkMode = !isDarkMode;
+        document.body.classList.toggle('bg-gray-900', isDarkMode);
+        document.body.classList.toggle('text-white', isDarkMode);
+        document.body.classList.toggle('bg-gray-50', !isDarkMode);
+        document.body.classList.toggle('text-gray-800', !isDarkMode);
+        
+        // 更新搜索区域样式
+        const searchElements = document.querySelectorAll('#search-input, #search-type, #search-engine');
+        searchElements.forEach(el => {
+          el.classList.toggle('bg-gray-800', isDarkMode);
+          el.classList.toggle('bg-gray-50', !isDarkMode);
+          el.classList.toggle('border-gray-700', isDarkMode);
+          el.classList.toggle('border-gray-200', !isDarkMode);
+          el.classList.toggle('text-white', isDarkMode);
+          el.classList.toggle('text-gray-700', !isDarkMode);
+        });
+        
+        // 更新图标
+        const icon = themeToggle.querySelector('i');
+        if (isDarkMode) {
+          icon.classList.remove('fa-moon-o');
+          icon.classList.add('fa-sun-o');
+          icon.classList.remove('text-gray-600');
+          icon.classList.add('text-yellow-400');
+        } else {
+          icon.classList.remove('fa-sun-o');
+          icon.classList.add('fa-moon-o');
+          icon.classList.remove('text-yellow-400');
+          icon.classList.add('text-gray-600');
+        }
+        
+        // 更新卡片背景
+        document.querySelectorAll('section > div').forEach(card => {
+          card.classList.toggle('bg-gray-800', isDarkMode);
+          card.classList.toggle('bg-white', !isDarkMode);
+        });
+        
+        // 更新侧边栏、头部和底部
+        document.querySelector('aside').classList.toggle('bg-gray-800', isDarkMode);
+        document.querySelector('aside').classList.toggle('bg-white', !isDarkMode);
+        header.classList.toggle('bg-gray-800', isDarkMode);
+        header.classList.toggle('bg-white', !isDarkMode);
+        footer.classList.toggle('bg-gray-800', isDarkMode);
+        footer.classList.toggle('bg-white', !isDarkMode);
+        footer.classList.toggle('border-gray-700', isDarkMode);
+        footer.classList.toggle('border-gray-200', !isDarkMode);
+        
+        // 更新链接悬停效果
+        document.querySelectorAll('a[href="#"]').forEach(link => {
+          link.classList.toggle('hover:bg-blue-900/30', isDarkMode);
+          link.classList.toggle('hover:bg-blue-50', !isDarkMode);
+        });
+      });
+
+      // 为所有功能项添加动画效果
+      const featureItems = document.querySelectorAll('a[href="#"]');
+      featureItems.forEach(item => {
+        // 添加进入视口时的动画
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('opacity-100', 'translate-y-0');
+              entry.target.classList.remove('opacity-0', 'translate-y-4');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.1 });
+        
+        // 初始状态
+        item.classList.add('opacity-0', 'translate-y-4', 'transition-all', 'duration-500');
+        observer.observe(item);
+      });
+    });
+  </script>
 </body>
 </html>
